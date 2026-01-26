@@ -12,7 +12,7 @@ public class Compra {
 	private Cliente cliente;
 	
 	
-	public Compra(String idcompra, LocalDate fecha, LocalTime hora, double precio, float descuento, Cliente cliente) {
+	public Compra(String idcompra, LocalDate fecha, LocalTime hora, double precio, float descuento) {
 		this.idcompra = idcompra;
 		this.fecha = fecha;
 		this.hora = hora;

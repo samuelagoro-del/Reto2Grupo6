@@ -12,7 +12,7 @@ public class Sesion {
 	private Sala sala;
 	private Pelicula pelicula;
 
-	public Sesion(int identificador, LocalDate fecha, LocalTime horainicio, LocalTime horafin, double precio, Sala sala, Pelicula pelicula) {
+	public Sesion(int identificador, LocalDate fecha, LocalTime horainicio, LocalTime horafin, double precio) {
 		this.idsesion = identificador;
 		this.fecha = fecha;
 		this.horainicio = horainicio;
