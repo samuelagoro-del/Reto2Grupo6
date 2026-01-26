@@ -9,7 +9,7 @@ public class Entrada {
 	private Compra compra;
 	
 	
-	public Entrada(String identificador, int numeropersonas, double precio, float descuento) {
+	public Entrada(String identificador, Sesion sesion, int numeropersonas, double precio, float descuento, Compra compra) {
 		this.identrada = identificador;
 		this.sesion = new Sesion();
 		this.numeropersonas = numeropersonas;
