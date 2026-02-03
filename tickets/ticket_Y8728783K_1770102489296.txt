@@ -1,0 +1,14 @@
+TICKET DE COMPRA
+Cliente: samuel agoro | DNI: Y8728783K
+------------------------------------
+Película: 28 años después: El templo de los huesos
+Fecha:    2026-02-05
+Hora:     18:00 - 19:55
+Sala:     Sala 3
+Personas: 3
+Precio:   27,00 €
+
+------------------------------------
+Total: 27,00€
+Descuento aplicado: 0.0%
+Total a pagar: 27,00€

@@ -1,0 +1,14 @@
+TICKET DE COMPRA
+Cliente: samuel agoro | DNI: Y8728783K
+------------------------------------
+Película: Avatar: Fuego y ceniza
+Fecha:    2026-01-22
+Hora:     18:00 - 20:16
+Sala:     Sala Principal
+Personas: 2
+Precio:   17,00 €
+
+------------------------------------
+Total: 17,00€
+Descuento aplicado: 0.0%
+Total a pagar: 17,00€
