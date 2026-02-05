@@ -13,7 +13,7 @@ public class Main1 {
 
     // ---------------- FUNCIONES ----------------
 
-    // 1️⃣ Login o registro de usuario
+    // 1️⃣ Login o registro de usuario (CON CONTROL DE DNI DUPLICADO)
     public static Cliente loginUsuario(Connection con, Scanner sc) throws SQLException {
         while (true) {
             System.out.println("1 - Iniciar sesión");
@@ -31,6 +31,7 @@ public class Main1 {
                 try (PreparedStatement ps = con.prepareStatement(sql)) {
                     ps.setString(1, dni);
                     ps.setString(2, pass);
+
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
                             System.out.println("\nLogin correcto.\n");
@@ -48,27 +49,42 @@ public class Main1 {
                 }
 
             } else if (opcion.equals("2")) {
-                System.out.print("DNI: ");
-                String dni = sc.nextLine();
-                System.out.print("Nombre: ");
-                String nombre = sc.nextLine();
-                System.out.print("Apellido: ");
-                String apellido = sc.nextLine();
-                System.out.print("Correo: ");
-                String correo = sc.nextLine();
-                System.out.print("Contraseña: ");
-                String contraseña = sc.nextLine();
 
-                String sqlInsert = "INSERT INTO Cliente VALUES (?, ?, ?, ?, ?)";
-                try (PreparedStatement ps = con.prepareStatement(sqlInsert)) {
-                    ps.setString(1, dni);
-                    ps.setString(2, nombre);
-                    ps.setString(3, apellido);
-                    ps.setString(4, correo);
-                    ps.setString(5, contraseña);
-                    ps.executeUpdate();
-                    System.out.println("\nUsuario registrado correctamente.\n");
-                    return new Cliente(dni, nombre, apellido, correo, contraseña);
+                String dni, nombre, apellido, correo, contraseña;
+
+                while (true) {
+                    System.out.print("DNI: ");
+                    dni = sc.nextLine();
+                    System.out.print("Nombre: ");
+                    nombre = sc.nextLine();
+                    System.out.print("Apellido: ");
+                    apellido = sc.nextLine();
+                    System.out.print("Correo: ");
+                    correo = sc.nextLine();
+                    System.out.print("Contraseña: ");
+                    contraseña = sc.nextLine();
+
+                    String sqlInsert = "INSERT INTO Cliente VALUES (?, ?, ?, ?, ?)";
+
+                    try (PreparedStatement ps = con.prepareStatement(sqlInsert)) {
+                        ps.setString(1, dni);
+                        ps.setString(2, nombre);
+                        ps.setString(3, apellido);
+                        ps.setString(4, correo);
+                        ps.setString(5, contraseña);
+                        ps.executeUpdate();
+
+                        System.out.println("\nUsuario registrado correctamente.\n");
+                        return new Cliente(dni, nombre, apellido, correo, contraseña);
+
+                    } catch (SQLException ex) {
+                        // Código típico de DNI duplicado en MySQL
+                        if (ex.getErrorCode() == 1062) {
+                            System.out.println("\n❌ ERROR: El DNI ya está registrado. Vuelve a intentarlo.\n");
+                        } else {
+                            throw ex;
+                        }
+                    }
                 }
 
             } else {
@@ -126,6 +142,7 @@ public class Main1 {
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, pelicula.getIdPelicula());
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Sala sala = new Sala(rs.getString("nombreSala"), rs.getInt("idSala"));
@@ -139,7 +156,9 @@ public class Main1 {
                             pelicula
                     );
                     sesiones.add(sesion);
-                    if (!dias.contains(sesion.getFecha())) dias.add(sesion.getFecha());
+
+                    if (!dias.contains(sesion.getFecha()))
+                        dias.add(sesion.getFecha());
                 }
             }
         }
@@ -160,14 +179,16 @@ public class Main1 {
 
         ArrayList<Sesion> sesionesDia = new ArrayList<>();
         for (Sesion s : sesiones) {
-            if (s.getFecha().equals(dia)) sesionesDia.add(s);
+            if (s.getFecha().equals(dia))
+                sesionesDia.add(s);
         }
 
         System.out.println("\nSesiones:");
         for (int i = 0; i < sesionesDia.size(); i++) {
             Sesion s = sesionesDia.get(i);
-            System.out.println((i + 1) + " - " + s.getHoraInicio() + " | Sala " +
-                    s.getSala().getNombre() + " | " + s.getPrecio() + "€");
+            System.out.println((i + 1) + " - " + s.getHoraInicio() +
+                    " | Sala " + s.getSala().getNombre() +
+                    " | " + s.getPrecio() + "€");
         }
 
         int sesSel;
@@ -181,7 +202,9 @@ public class Main1 {
     }
 
     // 4️⃣ Registrar compra
-    public static int registrarCompra(Connection con, Cliente cliente, double total, float descuento) throws SQLException {
+    public static int registrarCompra(Connection con, Cliente cliente,
+                                     double total, float descuento) throws SQLException {
+
         String sql = "INSERT INTO Compra (fecha, hora, precio, descuento, DNI) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -193,14 +216,17 @@ public class Main1 {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) return rs.getInt(1);
+            if (rs.next())
+                return rs.getInt(1);
         }
         return 0;
     }
 
     // 5️⃣ Registrar entrada
     public static void registrarEntrada(Connection con, Entrada e, int idCompra) throws SQLException {
-        String sql = "INSERT INTO Entrada (descuento, precio, num_pers, idCompra, idSesion) VALUES (0, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Entrada (descuento, precio, num_pers, idCompra, idSesion) " +
+                     "VALUES (0, ?, ?, ?, ?)";
+
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDouble(1, e.getPrecio());
             ps.setInt(2, e.getNumeropersonas());
@@ -211,18 +237,25 @@ public class Main1 {
     }
 
     // 6️⃣ Guardar ticket
-    public static void guardarTicket(Cliente c, ArrayList<Entrada> entradas, double total, float desc, double totalFinal) {
+    public static void guardarTicket(Cliente c, ArrayList<Entrada> entradas,
+                                     double total, float desc, double totalFinal) {
+
         try {
             File dir = new File("src/Reto2Grupo6/tickets");
-            if (!dir.exists()) dir.mkdir();
+            if (!dir.exists())
+                dir.mkdir();
 
-            String ruta = dir + "/ticket_" + c.getDNI() + "_" + System.currentTimeMillis() + ".txt";
+            String ruta = dir + "/ticket_" + c.getDNI() + "_" +
+                          System.currentTimeMillis() + ".txt";
 
             try (FileWriter fw = new FileWriter(ruta)) {
                 fw.write("TICKET DE COMPRA\n");
                 fw.write("Cliente: " + c.getNombre() + " " + c.getApellido() + "\n");
                 fw.write("---------------------------------\n");
-                for (Entrada e : entradas) fw.write(e + "\n");
+
+                for (Entrada e : entradas)
+                    fw.write(e + "\n");
+
                 fw.write("---------------------------------\n");
                 fw.write("Total: " + total + "€\n");
                 fw.write("Descuento: " + (desc * 100) + "%\n");
@@ -230,6 +263,7 @@ public class Main1 {
             }
 
             System.out.println("\nTicket guardado correctamente.");
+
         } catch (IOException e) {
             System.out.println("Error al guardar ticket.");
         }
@@ -265,16 +299,22 @@ public class Main1 {
             }
 
             double total = 0;
-            for (Entrada e : entradas) total += e.getPrecio();
+            for (Entrada e : entradas)
+                total += e.getPrecio();
 
-            float descuento = entradas.size() == 2 ? 0.20f : entradas.size() >= 3 ? 0.30f : 0;
+            float descuento =
+                    entradas.size() == 2 ? 0.20f :
+                    entradas.size() >= 3 ? 0.30f : 0;
+
             double totalFinal = total * (1 - descuento);
 
             System.out.println("\nDebe iniciar sesión para finalizar la compra\n");
             Cliente cliente = loginUsuario(con, sc);
 
             int idCompra = registrarCompra(con, cliente, totalFinal, descuento);
-            for (Entrada e : entradas) registrarEntrada(con, e, idCompra);
+
+            for (Entrada e : entradas)
+                registrarEntrada(con, e, idCompra);
 
             guardarTicket(cliente, entradas, total, descuento, totalFinal);
 
