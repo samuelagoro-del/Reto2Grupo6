@@ -268,7 +268,6 @@ try {
 				fw.write(sb.toString());
 			}
 
-			System.out.println("\nTicket guardado correctamente en archivo.");
 
 		} catch (IOException e) {
 			System.out.println("Error al guardar ticket.");
